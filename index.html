@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerBI Dashboard PoC - Versione Sicura</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.powerbi.com https://msit.powerbi.com https://*.powerbi.com https://cmirbk20i25.typeform.com https://www.j4.energy data:; frame-src https://app.powerbi.com https://msit.powerbi.com https://*.powerbi.com https://cmirbk20i25.typeform.com; img-src 'self' https://www.j4.energy data:;">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a5490 0%, #2980b9 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px;
+        }
+
+        .logo {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .logo-small {
+            width: 140px;
+            height: auto;
+        }
+
+        .logo-small.white-logo {
+            filter: brightness(0) invert(1);
+        }
+
+        /* Pagina di Login */
+        .login-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 40px 60px 40px;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .login-page h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .login-page .subtitle {
+            color: #1a5490;
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1a5490;
+            box-shadow: 0 0 0 3px rgba(26, 84, 144, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1a5490 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 84, 144, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #27ae60;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .security-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #1a5490;
+        }
+
+        .security-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .security-info p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .login-attempts {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* Pagina Dashboard */
+        .dashboard-page {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .dashboard-header {
+            background: #1a5490;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ticket-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .ticket-btn:hover {
+            background: #229954;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .session-progress {
+            width: 120px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .session-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #f39c12, #e74c3c);
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .dashboard-content {
+            flex: 1;
+            padding: 0;
+            background: #f8f9fa;
+        }
+
+        .powerbi-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: #666;
+        }
+
+        .activity-log {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+            display: none;
+        }
+
+        /* Modal per Typeform */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            border-radius: 10px;
+            width: 90%;
+            height: 90%;
+            position: relative;
+        }
+
+        .modal-header {
+            background: #1a5490;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .typeform-iframe {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .login-page {
+                padding: 30px 20px 40px 20px;
+            }
+
+            .logo {
+                width: 150px;
+            }
+
+            .logo-small {
+                width: 100px;
+            }
+
+            .dashboard-header {
+                padding: 10px 15px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header-left, .header-right {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .dashboard-header h1 {
+                font-size: 20px;
+            }
+
+            .session-progress {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pagina di Login -->
+        <div id="loginPage" class="login-page">
+            <!-- Logo J4Energy -->
+            <img src="https://www.j4.energy/wp-content/uploads/2023/06/J4energy-logo-blu.png" alt="J4Energy Logo" class="logo">
+
+            <h1>Dashboard Consumi</h1>
+            <p class="subtitle">Gruppo Florence Srl</p>
+            
+            <div class="security-info">
+                <h3>🔐 LOGIN PAGE</h3>
+                <p>Per supporto tecnico: info@j4.energy</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" id="loginBtn" class="login-btn">Accedi</button>
+                
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+                <div id="loginAttempts" class="login-attempts"></div>
+            </form>
+        </div>
+
+        <!-- Pagina Dashboard -->
+        <div id="dashboardPage" class="dashboard-page">
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <!-- Logo piccolo con filtro bianco -->
+                    <img src="https://www.j4.energy/wp-content/uploads/2023/06/J4energy-logo-blu.png" 
+                         alt="J4Energy Logo" 
+                         class="logo-small white-logo">
+                    <h1>Dashboard PowerBI</h1>
+                </div>
+                
+                <div class="header-right">
+                    <a href="#" id="ticketBtn" class="ticket-btn">
+                        🎫 Apri Ticket
+                    </a>
+                    <div class="user-info">
+                        <div class="session-info">
+                            <span id="welcomeUser"></span>
+                            <div class="session-progress">
+                                <div id="sessionBar" class="session-bar"></div>
+                            </div>
+                        </div>
+                        <button id="logoutBtn" class="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-content">
+                <div id="loading" class="loading">
+                    <p>Caricamento sicuro della dashboard...</p>
+                </div>
+                <iframe 
+                    id="powerbiFrame" 
+                    class="powerbi-iframe" 
+                    style="display: none;"
+                    sandbox="allow-scripts allow-same-origin allow-forms">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per Typeform -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎫 Sistema di Ticketing</h2>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <iframe id="typeformFrame" class="typeform-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <div id="activityLog" class="activity-log"></div>
+
+    <script>
+        // Configurazione sicura
+        const CONFIG = {
+            // Credenziali aggiornate
+            encryptedCredentials: [
+                'Zi5nYWxnYW5pOkdKZmxvNG5SRw==' // f.galgani:GJflo4nRG
+            ],
+            maxLoginAttempts: 3,
+            sessionTimeout: 30 * 60 * 1000, // 30 minuti
+            lockoutTime: 5 * 60 * 1000,     // 5 minuti
+            powerbiUrl: 'https://app.powerbi.com/view?r=eyJrIjoiYWZjOTBlY2ItMDcyYi00NmM1LTk2ODYtNWYwN2RlYjE4YjE5IiwidCI6ImQ1MWFmNDdhLTcwMWUtNGM3YS05ODViLTlhNjIyYmQ0YmIwZCJ9',
+            typeformUrl: 'https://cmirbk20i25.typeform.com/to/Er20pm4M',
+            logActivities: true
+        };
+
+        // Stato sicurezza
+        let securityState = {
+            loginAttempts: 0,
+            isLocked: false,
+            lockoutUntil: null,
+            sessionStart: null,
+            lastActivity: null,
+            activityLog: [],
+            sessionInterval: null
+        };
+
+        // Elementi DOM
+        const loginPage = document.getElementById('loginPage');
+        const dashboardPage = document.getElementById('dashboardPage');
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const loginAttempts = document.getElementById('loginAttempts');
+        const welcomeUser = document.getElementById('welcomeUser');
+        const sessionBar = document.getElementById('sessionBar');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const powerbiFrame = document.getElementById('powerbiFrame');
+        const loading = document.getElementById('loading');
+        const activityLog = document.getElementById('activityLog');
+        const ticketBtn = document.getElementById('ticketBtn');
+        const ticketModal = document.getElementById('ticketModal');
+        const closeModal = document.getElementById('closeModal');
+        const typeformFrame = document.getElementById('typeformFrame');
+
+        // Funzioni di sicurezza
+        function encryptCredentials(username, password) {
+            return btoa(username + ':' + password);
+        }
+
+        function decryptCredentials(encrypted) {
+            try {
+                return atob(encrypted).split(':');
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function validateCredentials(username, password) {
+            const encrypted = encryptCredentials(username, password);
+            return CONFIG.encryptedCredentials.includes(encrypted);
+        }
+
+        function isAccountLocked() {
+            if (!securityState.isLocked) return false;
+            
+            const now = Date.now();
+            if (now > securityState.lockoutUntil) {
+                securityState.isLocked = false;
+                securityState.lockoutUntil = null;
+                securityState.loginAttempts = 0;
+                return false;
+            }
+            return true;
+        }
+
+        function lockAccount() {
+            securityState.isLocked = true;
+            securityState.lockoutUntil = Date.now() + CONFIG.lockoutTime;
+            logActivity('Account bloccato per troppi tentativi');
+        }
+
+        function logActivity(message) {
+            if (!CONFIG.logActivities) return;
+            
+            const timestamp = new Date().toLocaleString('it-IT');
+            const entry = `[${timestamp}] ${message}`;
+            securityState.activityLog.push(entry);
+            
+            // Mostra log temporaneamente
+            activityLog.textContent = entry;
+            activityLog.style.display = 'block';
+            setTimeout(() => {
+                activityLog.style.display = 'none';
+            }, 3000);
+            
+            console.log('Security Log:', entry);
+        }
+
+        function sanitizeInput(input) {
+            return input.replace(/[<>'"&]/g, '');
+        }
+
+        function updateSessionProgress() {
+            if (!securityState.sessionStart) return;
+            
+            const elapsed = Date.now() - securityState.sessionStart;
+            const remaining = CONFIG.sessionTimeout - elapsed;
+            
+            if (remaining <= 0) {
+                logActivity('Sessione scaduta');
+                logout();
+                return;
+            }
+            
+            // Calcola la percentuale rimanente
+            const percentage = (remaining / CONFIG.sessionTimeout) * 100;
+            sessionBar.style.width = percentage + '%';
+            
+            // Cambia colore in base al tempo rimanente
+            if (percentage > 50) {
+                sessionBar.style.background = '#27ae60';
+            } else if (percentage > 20) {
+                sessionBar.style.background = '#f39c12';
+            } else {
+                sessionBar.style.background = '#e74c3c';
+            }
+        }
+
+        // Gestione del login sicuro
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (isAccountLocked()) {
+                const remainingTime = Math.ceil((securityState.lockoutUntil - Date.now()) / 60000);
+                showError(`Account bloccato. Riprova tra ${remainingTime} minuti.`);
+                return;
+            }
+            
+            const username = sanitizeInput(document.getElementById('username').value);
+            const password = sanitizeInput(document.getElementById('password').value);
+            
+            if (!username || !password) {
+                showError('Inserisci username e password');
+                return;
+            }
+            
+            // Simula un piccolo delay per prevenire brute force
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verifica...';
+            
+            setTimeout(() => {
+                if (validateCredentials(username, password)) {
+                    // Login riuscito
+                    securityState.loginAttempts = 0;
+                    securityState.sessionStart = Date.now();
+                    securityState.lastActivity = Date.now();
+                    
+                    // Salva in modo più sicuro
+                    const sessionData = {
+                        user: username,
+                        timestamp: Date.now(),
+                        hash: btoa(username + Date.now())
+                    };
+                    
+                    sessionStorage.setItem('authSession', JSON.stringify(sessionData));
+                    logActivity(`Login riuscito per utente: ${username}`);
+                    showSuccess('Login riuscito!');
+                    
+                    setTimeout(() => {
+                        showDashboard(username);
+                        clearForm();
+                    }, 1000);
+                    
+                } else {
+                    // Login fallito
+                    securityState.loginAttempts++;
+                    logActivity(`Tentativo di login fallito per: ${username}`);
+                    
+                    if (securityState.loginAttempts >= CONFIG.maxLoginAttempts) {
+                        lockAccount();
+                        showError('Troppi tentativi falliti. Account bloccato.');
+                    } else {
+                        const remaining = CONFIG.maxLoginAttempts - securityState.loginAttempts;
+                        showError('Credenziali non corrette');
+                        loginAttempts.textContent = `Tentativi rimanenti: ${remaining}`;
+                    }
+                }
+                
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Accedi';
+            }, 1000);
+        });
+
+        // Gestione ticket modal
+        ticketBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            typeformFrame.src = CONFIG.typeformUrl;
+            ticketModal.style.display = 'block';
+            logActivity('Aperto sistema di ticketing');
+        });
+
+        closeModal.addEventListener('click', function() {
+            ticketModal.style.display = 'none';
+            typeformFrame.src = '';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === ticketModal) {
+                ticketModal.style.display = 'none';
+                typeformFrame.src = '';
+            }
+        });
+
+        // Gestione del logout
+        logoutBtn.addEventListener('click', function() {
+            logActivity('Logout manuale');
+            logout();
+        });
+
+        // Funzioni helper
+        function showDashboard(username) {
+            loginPage.style.display = 'none';
+            dashboardPage.style.display = 'flex';
+            
+            // Estrai nome utente per il welcome
+            const userName = username.includes('@') ? 
+                username.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase()) :
+                username.charAt(0).toUpperCase() + username.slice(1);
+            welcomeUser.textContent = `Benvenuto, ${userName}`;
+            
+            // Carica PowerBI con URL sicuro
+            setTimeout(() => {
+                if (CONFIG.powerbiUrl && CONFIG.powerbiUrl !== '[PlaceholderBILink]') {
+                    powerbiFrame.src = CONFIG.powerbiUrl;
+                    loading.style.display = 'none';
+                    powerbiFrame.style.display = 'block';
+                    logActivity('Dashboard caricata');
+                } else {
+                    loading.innerHTML = '<p>⚠️ Configura il link PowerBI per visualizzare la dashboard</p>';
+                }
+            }, 1000);
+            
+            // Avvia progress bar sessione
+            securityState.sessionInterval = setInterval(() => {
+                updateSessionProgress();
+                if (!isSessionValid()) {
+                    clearInterval(securityState.sessionInterval);
+                }
+            }, 1000);
+        }
+
+        function showLogin() {
+            loginPage.style.display = 'flex';
+            dashboardPage.style.display = 'none';
+            loading.style.display = 'flex';
+            powerbiFrame.style.display = 'none';
+            powerbiFrame.src = '';
+            
+            // Pulisci interval
+            if (securityState.sessionInterval) {
+                clearInterval(securityState.sessionInterval);
+                securityState.sessionInterval = null;
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('authSession');
+            securityState.sessionStart = null;
+            securityState.lastActivity = null;
+            
+            // Chiudi modal se aperto
+            ticketModal.style.display = 'none';
+            typeformFrame.src = '';
+            
+            showLogin();
+            clearForm();
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            successMessage.textContent = '';
+            setTimeout(() => {
+                errorMessage.textContent = '';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            errorMessage.textContent = '';
+            setTimeout(() => {
+                successMessage.textContent = '';
+            }, 3000);
+        }
+
+        function clearForm() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            errorMessage.textContent = '';
+            successMessage.textContent = '';
+            loginAttempts.textContent = '';
+        }
+
+        function isSessionValid() {
+            try {
+                const sessionData = JSON.parse(sessionStorage.getItem('authSession') || '{}');
+                if (!sessionData.user || !sessionData.timestamp) return false;
+                
+                const elapsed = Date.now() - sessionData.timestamp;
+                return elapsed < CONFIG.sessionTimeout;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Controllo sessione all'avvio
+        function checkSession() {
+            try {
+                const sessionData = JSON.parse(sessionStorage.getItem('authSession') || '{}');
+                if (isSessionValid()) {
+                    securityState.sessionStart = sessionData.timestamp;
+                    logActivity(`Sessione ripristinata per: ${sessionData.user}`);
+                    showDashboard(sessionData.user);
+                } else {
+                    if (sessionData.user) {
+                        logActivity('Sessione scaduta');
+                    }
+                    showLogin();
+                }
+            } catch (e) {
+                showLogin();
+            }
+        }
+
+        // Rilevamento attività per estendere sessione
+        document.addEventListener('mousemove', () => {
+            if (securityState.sessionStart) {
+                securityState.lastActivity = Date.now();
+            }
+        });
+
+        document.addEventListener('keypress', () => {
+            if (securityState.sessionStart) {
+                securityState.lastActivity = Date.now();
+            }
+        });
+
+        // Gestione errori iframe
+        powerbiFrame.addEventListener('error', function() {
+            loading.innerHTML = '<p>⚠️ Errore nel caricamento della dashboard. Verifica il link PowerBI.</p>';
+            logActivity('Errore caricamento PowerBI');
+        });
+
+        // Protezione contro iniezione di script nell'iframe
+        window.addEventListener('message', function(event) {
+            // Verifica origine PowerBI o Typeform
+            if (event.origin.includes('powerbi.com') || event.origin.includes('typeform.com')) {
+                logActivity('Messaggio ricevuto da servizio autorizzato');
+            } else {
+                logActivity(`Messaggio bloccato da origine sospetta: ${event.origin}`);
+            }
+        });
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            logActivity('Applicazione avviata');
+            checkSession();
+        });
+
+        // Pulizia al refresh/chiusura
+        window.addEventListener('beforeunload', function() {
+            logActivity('Applicazione chiusa');
+        });
+
+        // Protezione da tab inattivi
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                logActivity('Tab nascosto');
+            } else {
+                logActivity('Tab riattivato');
+                if (!isSessionValid()) {
+                    logout();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
